@@ -1,2 +1,5 @@
 tfx==1.14.0
-pandas==2.2.1
+pandas~=2.2.1
+numpy~=1.26.4
+hyperloglog~=0.0.14
+nltk~=3.8.1
