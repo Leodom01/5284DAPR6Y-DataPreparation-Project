@@ -73,6 +73,10 @@ class DataProfiler:
             c3gr = Counter(ngrams(aggregated_string, 3))
             return x.apply(lambda y: _peculiarity_index(y, c2gr, c3gr)).max()
 
+        # TODO: feature correlation, (mutual information, entropy)
+        # TODO: drift detection, (KL divergence, chi-square test)
+        # TODO: duplicates detection, (LSH, MinHash)
+
     instance = None
 
     def __init__(self):
