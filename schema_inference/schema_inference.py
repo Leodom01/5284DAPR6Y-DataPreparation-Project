@@ -5,11 +5,11 @@ import pandas as pd
 import tensorflow_data_validation as tfdv
 from tensorflow_metadata.proto.v0 import schema_pb2
 
-from schema_inference.helper import schema_pb2obj, Schema
+from helper import schema_pb2obj, Schema
 
 
 class SchemaInference:
-    BATCH_SIZE = 100
+    BATCH_SIZE = 5
 
     def __init__(self, path):
         self.data = pd.read_csv(path)
@@ -36,7 +36,7 @@ class SchemaInference:
 
         indices = list(self.data.index)
         random.shuffle(indices)
-        self.batch_indices_list = []
+        #self.batch_indices_list = [[i for i in range(0,10)], [i for i in range(10, 20)]]
 
         while indices:
             if len(indices) >= self.BATCH_SIZE:
@@ -50,7 +50,7 @@ class SchemaInference:
     def _infer_schemas_from_batches(self):
         # Infer the schema
         for batch_indices in self.batch_indices_list:
-            batch = self.data.iloc[batch_indices]
+            batch = self.data.iloc[batch_indices]#.copy(deep=True)
             stats = tfdv.generate_statistics_from_dataframe(batch)
             schema_pb = tfdv.infer_schema(stats)
             schema = schema_pb2obj(schema_pb)
@@ -75,10 +75,16 @@ class SchemaInference:
 if __name__ == '__main__':
     # Load data
     # path = '../datasets/carprices/car_prices.csv'
-    data_path = '../datasets/salaries/ds_salaries.csv'
+    #data_path = '../datasets/salaries/ds_salaries.csv'
+    data_path= '../datasets/test.csv'
+    # for chunk in pd.read_csv(data_path, chunksize=10):
+    #     # Process each batch (chunk) of data
+    #     print(chunk)
+    #     stats = tfdv.generate_statistics_from_dataframe(chunk)
+    #     schema = tfdv.infer_schema(stats)
+    #     print(schema)
 
     schema_inferer = SchemaInference(data_path)
-    schema_inferer._partition_data(seed=42)
     aggregated_schema = schema_inferer.infer_schema()
     # print(aggregated_schema)
     # print(schema_pb2obj(aggregated_schema))
