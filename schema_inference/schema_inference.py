@@ -108,9 +108,7 @@ class SchemaInference:
         return self.aggregated_schema
 
     def detect_anomalies(self):
-        ...
-
-        # return
+        pass
 
 
 # Example usage

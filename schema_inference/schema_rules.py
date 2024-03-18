@@ -2,9 +2,17 @@ from __future__ import annotations
 
 from typing import Counter as counter
 
+type_mapping = {
+    0: 'TYPE_UNKNOWN',
+    1: 'BYTES',
+    2: 'INT',
+    3: 'FLOAT',
+    4: 'STRUCT',
+}
+
 aggregation_mapping = {
-    "type": lambda x: min(x),
-    "domain": lambda x: set().union(*x)
+    "type": lambda x: type_mapping[min(x)],
+    "domain": lambda x: list(set().union(*x))
 }
 
 
@@ -16,7 +24,7 @@ def aggregate_presence_min_count(c: int, min_size: int) -> int:
     return 1 if c >= min_size else 0
 
 
-def aggregate(attr: str, count: counter, min_size: int) -> str | None:
+def aggregate(attr: str, count: counter, min_size: int) -> str | list | None:
     agg = None
     size = 0
     most_common = count.most_common()
