@@ -6,6 +6,7 @@ import tensorflow_data_validation as tfdv
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 from pb_parser import schema_pb2obj, Schema
+from schema_inference.schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
 
 BATCH_SIZE = 5
 AGGREGATION_THRESHOLD = 0.9
@@ -62,14 +63,26 @@ class SchemaInference:
         features = []
         domains= []
 
+        min_size = int(len(self.batch_indices_list) * AGGREGATION_THRESHOLD) + 1
+
         for column in self.data.columns:
             features.append(
                 schema_pb2.Feature(
                     name=column,
-                    type=...,
+                    type=aggregate(
+                        'type',
+                        self.feature_type_count[column],
+                        min_size
+                    ),
                     presence=schema_pb2.FeaturePresence(
-                        min_fraction=...,
-                        min_count=...
+                        min_fraction=aggregate_presence_min_fraction(
+                            self.feature_presence_count[column]['min_fraction'],
+                            min_size
+                        ),
+                        min_count=aggregate_presence_min_count(
+                            self.feature_presence_count[column]['min_count'],
+                            min_size
+                        )
                     )
                 )
             )
@@ -77,7 +90,11 @@ class SchemaInference:
             domains.append(
                 schema_pb2.StringDomain(
                     name=column,
-                    value=...,
+                    value=aggregate(
+                        'domain',
+                        self.domain_count[column],
+                        min_size
+                    )
                 )
             )
 
