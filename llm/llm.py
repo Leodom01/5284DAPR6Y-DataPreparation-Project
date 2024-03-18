@@ -3,6 +3,7 @@ import pandas as pd
 from openai import OpenAI
 from collections import Counter
 import requests
+from tqdm import tqdm
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
@@ -11,13 +12,13 @@ class LLM:
     def __init__(self, api_key: str) -> None:
         self.client = OpenAI(api_key=api_key)
 
-    def explore_data_types(self, data: pd.DataFrame, sample_size: int = 5, batch_size: int = 3, model_name: str = "chatgpt") -> dict[str, str]:
+    def explore_data_types(self, data: pd.DataFrame, sample_size: int = 15, batch_size: int = 3, model_name: str = "chatgpt") -> dict[str, str]:
         result = dict()
         column_names: list[str] = data.columns
 
-        for column_name in column_names:
+        for column_name in tqdm(column_names):
             result_list = []
-            for _ in range(batch_size):
+            for _ in tqdm(range(batch_size)):
                 random_values = data[column_name].sample(n=sample_size)
                 if model_name == "chatgpt":
                     tmp_result = self.chatgpt(column_name, random_values)
