@@ -86,10 +86,10 @@ def outliers_rate(df, column_name):
 
     nentries = df.shape[0]
     
-    if is_categorical(df[column_name]):
+    if is_categorical(df, column_name):
         return len(identify_categorical_outliers(df, column_name)) / nentries
 
-    elif is_numerical(df[column_name]):
+    elif is_numerical(df, column_name):
         return len(identify_numerical_outliers(df, column_name)) / nentries
         
     return
