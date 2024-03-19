@@ -6,7 +6,7 @@ import tensorflow_data_validation as tfdv
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 from pb_parser import schema_pb2obj, Schema
-from schema_inference.schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
+from schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
 
 BATCH_SIZE = 5
 AGGREGATION_THRESHOLD = 0.9
@@ -98,7 +98,7 @@ class SchemaInference:
                 )
             )
 
-        self.aggregated_schema.feature.extent(features)
+        self.aggregated_schema.feature.extend(features)
         self.aggregated_schema.string_domain.extend(domains)
 
     def infer_schema(self) -> schema_pb2.Schema:
@@ -107,8 +107,10 @@ class SchemaInference:
         self._aggregate_schemas()
         return self.aggregated_schema
 
-    def detect_anomalies(self):
-        pass
+    def detect_anomalies(self, path: str):
+        stats = tfdv.generate_statistics_from_csv(path)
+        self.anomalies = tfdv.validate_statistics(stats, schema=self.aggregated_schema)
+        print(self.anomalies)
 
 
 # Example usage
@@ -126,6 +128,7 @@ if __name__ == '__main__':
 
     schema_inferer = SchemaInference(data_path)
     aggregated_schema = schema_inferer.infer_schema()
+    schema_inferer.detect_anomalies(data_path)
     # print(aggregated_schema)
     # print(schema_pb2obj(aggregated_schema))
     # tfdv.display_schema(schema=aggregated_schema)
