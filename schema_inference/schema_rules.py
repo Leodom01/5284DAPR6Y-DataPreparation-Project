@@ -11,17 +11,17 @@ type_mapping = {
 }
 
 aggregation_mapping = {
-    "type": lambda x: type_mapping[min(x)],
-    "domain": lambda x: list(set().union(*x))
+    "type": lambda x: type_mapping[min([elem for elem in x if elem])],
+    "domain": lambda x: list(set().union(*[elem for elem in x if elem]))
 }
 
 
-def aggregate_presence_min_fraction(c: int, min_size: int) -> float:
-    return 1.0 if c >= min_size else None
+def aggregate_presence_min_fraction(c: int | None, min_size: int) -> float:
+    return 1.0 if c and c >= min_size else None
 
 
-def aggregate_presence_min_count(c: int, min_size: int) -> int:
-    return 1 if c >= min_size else 0
+def aggregate_presence_min_count(c: int | None, min_size: int) -> int:
+    return 1 if c and c >= min_size else 0
 
 
 def aggregate(attr: str, count: counter, min_size: int) -> str | list | None:
@@ -31,7 +31,7 @@ def aggregate(attr: str, count: counter, min_size: int) -> str | list | None:
 
     while size < min_size:
         val, c = most_common.pop(0)
-        agg = aggregation_mapping[attr](agg, val)
+        agg = aggregation_mapping[attr]([agg, val])
         size += c
 
     return agg
