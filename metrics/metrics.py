@@ -84,7 +84,7 @@ def calculate_metrics(dataset: pd.DataFrame) -> pd.DataFrame:
 
 # Example usage
 if __name__ == '__main__':
-    path = 'datasets/carprices/car_prices.csv'
+    path = '../datasets/carprices/car_prices.csv'
     data = pd.read_csv(path)
     data_metrics = calculate_metrics(data)
     print(data_metrics)

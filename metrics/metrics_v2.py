@@ -118,7 +118,7 @@ class DataProfiler:
 # Example usage
 if __name__ == "__main__":
     dp = DataProfiler()
-    path = 'datasets/carprices/car_prices.csv'
+    path = '../datasets/carprices/car_prices.csv'
     data = pd.read_csv(path)
     # take first 5000k
     data = data[:5000]
