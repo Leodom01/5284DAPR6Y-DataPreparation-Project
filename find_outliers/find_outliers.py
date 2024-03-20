@@ -5,12 +5,11 @@ from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-
-def is_categorical(df, column_name, threshold = 0.1, max_values = 100):
+def is_categorical(df, column_name, threshold = 0.1):
 
     if str(df[column_name].dtype) in {'object'}:
         nunique = df[column_name].nunique()
-        if nunique <= max_values and nunique/df[column_name].shape[0] <= threshold:
+        if nunique/df[column_name].shape[0] <= threshold:
             return True
     return False
 
@@ -94,3 +93,13 @@ def outliers_rate(df, column_name):
         
     return
 
+
+def outliers(df, column_name):
+
+    if is_categorical(df, column_name):
+        return identify_categorical_outliers(df, column_name)
+
+    elif is_numerical(df, column_name):
+        return identify_numerical_outliers(df, column_name)
+
+    return
