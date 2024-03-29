@@ -12,18 +12,18 @@ from random import random
 import numpy as np
 from dateutil.parser import *
 
-NA_PROB = 0.01
-STRING_PROB = 0.01
-NUMBER_PROB = 0.01
-DATE_PROB = 0.01
-DATETIME_PROB = 0.01
-TIME_PROB = 0.01
-URL_PROB = 0.01
-BOOL_PROB = 0.01
-EMAIL_PROB = 0.01
-JSON_PROB = 0.01
-NETWORK_PROB = 0.01
-XML_PROB = 0.01
+NA_PROB = 0.2
+STRING_PROB = 0.2
+NUMBER_PROB = 0.2
+DATE_PROB = 0.2
+DATETIME_PROB = 0.2
+TIME_PROB = 0.2
+URL_PROB = 0.2
+BOOL_PROB = 0.2
+EMAIL_PROB = 0.2
+JSON_PROB = 0.2
+NETWORK_PROB = 0.2
+XML_PROB = 0.2
 
 
 # Set some values to na
@@ -116,27 +116,35 @@ def break_email(column):
 
 def break_json(column):
     idxs = np.random.randint(len(column), size=int(len(column) * JSON_PROB))
+    column[idxs] = column[idxs].apply(lambda row: row[:1]+"{{breaking: it}"+row[1:])
 
 
 def break_network(column):
     idxs = np.random.randint(len(column), size=int(len(column) * NETWORK_PROB))
-
+    for idx in idxs:
+        if np.random.random() < 0.5:
+            # Change one value to more than 255
+            column[idx] = "300."+column[idx].split(".")[1:]
+        else:
+            # Add one more value
+            column[idx] = str(column[idx])+".128"
 
 def break_xml(column):
     idxs = np.random.randint(len(column), size=int(len(column) * XML_PROB))
-
+    column[idxs] = "</>"+column[idxs]
 
 def main():
     dataset_path = "df_test.csv"
-    dataset_columns = ["ID", "number", "date", "datetime", "time", "url", "bool", "email", "json", "net_address", "xml"]
+    dataset_columns = ["number", "date", "datetime", "time", "url", "bool", "email", "json", "net_address", "xml"]
 
-    df = pd.read_csv(dataset_path, index_col=False)
+    df = pd.read_csv(dataset_path)
 
     print("Columns in the dataset:")
     print(df.columns)
 
     for idx, column in enumerate(df.columns):
         set_na(df[column])
+        print("Set NA to: "+column)
         match dataset_columns[idx]:
             case "number":
                 break_number(df[column])
