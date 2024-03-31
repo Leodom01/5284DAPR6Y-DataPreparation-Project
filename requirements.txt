@@ -9,6 +9,7 @@ cloudpickle==3.0.0
 ConfigSpace==0.4.21
 Cython==3.0.9
 dask==2024.3.0
+deepdiff==6.7.1
 distributed==2024.3.0
 distro==1.9.0
 duckdb==0.10.0

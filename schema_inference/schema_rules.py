@@ -2,16 +2,10 @@ from __future__ import annotations
 
 from typing import Counter as counter
 
-type_mapping = {
-    0: 'TYPE_UNKNOWN',
-    1: 'BYTES',
-    2: 'INT',
-    3: 'FLOAT',
-    4: 'STRUCT',
-}
+
 
 aggregation_mapping = {
-    "type": lambda x: type_mapping[min([elem for elem in x if elem])],
+    "type": lambda x: max([elem for elem in x if elem]),
     "domain": lambda x: list(set().union(*[elem for elem in x if elem]))
 }
 
@@ -29,7 +23,7 @@ def aggregate(attr: str, count: counter, min_size: int) -> str | list | None:
     size = 0
     most_common = count.most_common()
 
-    while size < min_size:
+    while size < min_size and most_common:
         val, c = most_common.pop(0)
         agg = aggregation_mapping[attr]([agg, val])
         size += c
