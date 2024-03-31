@@ -20,3 +20,10 @@ def shuffle_csv_rows(input_csv_path, output_csv_path, seed=42):
 
     return output_csv_path
 
+
+def get_columns_above_threshold(dataframe, threshold):
+    max_count = threshold * len(dataframe)
+    columns = [col for col in dataframe.columns if dataframe[col].nunique() > max_count]
+    return columns
+
+

@@ -7,7 +7,7 @@ from tensorflow_metadata.proto.v0 import schema_pb2
 
 from pb_parser import schema_pb2obj, Schema, TYPE_MAPPING
 from csv_parser import validate_csv_against_schema, count_csv_lines_and_column_names
-from helper import shuffle_csv_rows
+from helper import shuffle_csv_rows, get_columns_above_threshold
 from schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
 
 
@@ -101,44 +101,16 @@ class SchemaInference:
         self.anomalies = validate_csv_against_schema(self.aggregated_schema, path, ignored_domains=ignored_domains)
 
 
-# Example usage
-if __name__ == '__main__':
-    og_data_path = '../datasets/carprices/car_prices.csv'
-    # og_data_path = '../datasets/salaries/ds_salaries.csv'
-    # og_data_path = '../datasets/test.csv'
-
-    # PARAMS
-    # Shuffle params
-    shuffle = False
-    seed = 42
-    shuffled_data_path = '../datasets/shuffled/test.csv'
-    data_path = shuffle_csv_rows(og_data_path, shuffled_data_path, seed=seed) if shuffle else og_data_path
-
-    # Inference params
+def infer_schema_and_detect_anomalies(data_path, batch_size, aggregation_threshold, distinct_threshold):
     num_lines, column_names = count_csv_lines_and_column_names(data_path)
-    BATCH_SIZE = 0.2
-    AGGREGATION_THRESHOLD = 0.9
 
-    # Anomaly params
-    ignored_domains = [
-        #'year', 'make', 'model', 'trim', 'body',
-        #'transmission',
-        'vin',
-        #'state',
-        # 'condition',
-        # 'odometer',
-        # 'color',
-        #'interior',
-        'seller',
-         # 'mmr',
-        #'sellingprice',
-        'saledate'
-    ]
+    data = pd.read_csv(data_path)
+    ignored_domains = get_columns_above_threshold(data, distinct_threshold)
 
     #####
 
     # Initialize Schema Inferer
-    schema_inferer = SchemaInference(data_path, num_lines, column_names, BATCH_SIZE, AGGREGATION_THRESHOLD)
+    schema_inferer = SchemaInference(data_path, num_lines, column_names, batch_size, aggregation_threshold)
 
     # Infer schema at schema_inferer.aggregated_schema
     schema_inferer.infer_schema()
@@ -146,11 +118,31 @@ if __name__ == '__main__':
     # Infer schema at schema_inferer.anomalies
     schema_inferer.detect_anomalies(data_path, ignored_domains=ignored_domains)
 
-    # Print
-    data = pd.read_csv(data_path)
+    # Factor of Interest
     anomaly_indices = schema_inferer.anomalies
-    print(data.shape)
-    print("anomalies:", len(anomaly_indices))
-    # print(data.iloc[anomaly_indices].head())
+
+    return schema_inferer.aggregated_schema, anomaly_indices
+
+
+# Example usage
+if __name__ == '__main__':
+    og_data_path = '../datasets/carprices/car_prices.csv'
+    # og_data_path = '../datasets/salaries/ds_salaries.csv'
+    # og_data_path = '../datasets/test.csv'
+
+    BATCH_SIZE = 0.05
+    AGGREGATION_THRESHOLD = 0.9
+    DISTINCT_THRESHOLD = 0.8
+
+    # PARAMS
+    # Shuffle params
+    shuffle = False
+    seed = 42
+    shuffled_data_path = '../datasets/shuffled/car_prices.csv'
+    data_path = shuffle_csv_rows(og_data_path, shuffled_data_path, seed=seed) if shuffle else og_data_path
+
+    # Infer and detect
+    schema, anomalies = infer_schema_and_detect_anomalies(data_path, BATCH_SIZE, AGGREGATION_THRESHOLD, DISTINCT_THRESHOLD)
+    print("anomalies:", len(anomalies))
 
 
