@@ -1,11 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 
 import tensorflow_data_validation as tfdv
 import numpy as np
 import pandas as pd
+
+
+TYPE_MAPPING = {
+    0: 'TYPE_UNKNOWN',
+    1: 'BYTES',
+    2: 'INT',
+    3: 'FLOAT',
+    4: 'STRUCT',
+}
 
 
 def proto2dict(proto, fields):
@@ -13,7 +21,7 @@ def proto2dict(proto, fields):
     return dict((k, proto_dict.get(hsh)) for k, hsh in proto.DESCRIPTOR.fields_by_name.items() if k in fields)
 
 def schema_pb2obj(proto):
-    schema_fields = ['feature', 'string_domain']  # 'int_domain', 'float_domain'
+    schema_fields = ['feature', 'string_domain']
     feature_fields = ['name', 'type', 'presence']
     presence_fields = ['min_fraction', 'min_count']
     domain_fields = ['name', 'value']
@@ -49,12 +57,6 @@ def schema_pb2obj(proto):
     return Schema(features=features, domains=domains)
 
 
-# class FeatureType(Enum):
-#     BYTES = 1
-#     INT = 2
-#     FLOAT = 3
-
-
 @dataclass
 class Presence:
     min_fraction: float | None
@@ -78,7 +80,6 @@ class Domain:
 class Schema:
     features: list[Feature]
     domains: list[Domain]
-    # int and float domains
 
 
 # Example usage
@@ -117,19 +118,8 @@ if __name__ == '__main__':
     stats2 = tfdv.generate_statistics_from_dataframe(df2)
     schema2 = tfdv.infer_schema(stats2)
 
-    # schema1_dict = proto2dict(schema1
+    schema1_dict = proto2dict(schema1)
     schema2_dict = schema_pb2obj(schema2)
 
-    # print(schema1_dict)
+    print(schema1_dict)
     print(schema2_dict)
-    i = 0
-    # # Initialisation
-    # my_schem = schema_pb2.Schema()
-    #
-    # # A new required feature
-    # my_schem.feature.add(name='required_feat', type='INT', presence=schema_pb2.FeaturePresence(min_fraction=1))
-    #
-    # # A new optional feature
-    # my_schem.feature.add(name='optional_feat', type='INT', presence=schema_pb2.FeaturePresence(min_fraction=0.5))
-    #
-    # tfdv.display_schema(schema=my_schem)
