@@ -1,6 +1,6 @@
 import re
 import llm as llm
-from regex_patterns import regex_repository
+from .regex_patterns import regex_repository
 
 
 class Syntax_error_detection:
