@@ -1,5 +1,5 @@
 tfx==1.14.0
-pandas~=2.2.1
+pandas~=1.5.3
 numpy~=1.26.4
 hyperloglog~=0.0.14
 nltk~=3.8.1
@@ -22,7 +22,9 @@ liac-arff==2.5.0
 locket==1.0.0
 MarkupSafe==2.1.5
 msgpack==1.0.8
+openai==1.16.1
 packaging==24.0
+pandas==1.4.1
 partd==1.4.1
 psutil==5.9.8
 pynisher==0.6.4
@@ -31,8 +33,9 @@ pyrfr==0.8.3
 python-dateutil==2.9.0.post0
 pytz==2024.1
 PyYAML==6.0.1
-scikit-learn==0.24.2
+scikit-learn~=1.4.1.post1
 scipy==1.12.0
+sentence-transformers==2.6.1
 six==1.16.0
 smac==1.2
 sortedcontainers==2.4.0
@@ -45,3 +48,5 @@ tzdata==2024.1
 urllib3==2.2.1
 zict==3.0.0
 zipp==3.17.0
+
+requests~=2.31.0

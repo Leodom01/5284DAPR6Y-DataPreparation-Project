@@ -94,6 +94,6 @@ if __name__ == "__main__":
 
     sed = Syntax_error_detection(api_key='')
     # Load dataset
-    dataset = pd.read_csv("datasets/carprices/car_prices.csv", sep=",")
+    dataset = pd.read_csv("../datasets/carprices/car_prices.csv", sep=",")
     # Find syntax errors using the Syntax_error_detection class
     error_detected = sed.find_syntax_errors(dataset, "chatgpt")

@@ -5,9 +5,8 @@ import pandas as pd
 from openai import OpenAI
 from collections import Counter
 import requests
-from tqdm import tqdm
 import re
-from data import correct_data
+# from data import correct_data
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
@@ -62,24 +61,24 @@ class LLM:
         result["type_time"] = sum(type_time_list) / len(type_time_list)
         return result
 
-    def get_correct_number(self, result, data_name: str):
-        correct_re = 0
-        all_re = 0
-        correct_type = 0
-        all_col = 0
-
-        for k, v in result.items():
-
-            if k not in correct_data[data_name]:
-                continue
-            all_col += 1
-            if correct_data[data_name][k]["type"] == v["type"]:
-                correct_type += 1
-            if correct_data[data_name][k]["regex"]:
-                all_re += 1
-                if v["regex"] is not None and v["regex"] != "UNKNOWN":
-                    correct_re += 1
-        return (all_col, correct_type), (all_re, correct_re)
+    # def get_correct_number(self, result, data_name: str):
+    #     correct_re = 0
+    #     all_re = 0
+    #     correct_type = 0
+    #     all_col = 0
+    #
+    #     for k, v in result.items():
+    #
+    #         if k not in correct_data[data_name]:
+    #             continue
+    #         all_col += 1
+    #         if correct_data[data_name][k]["type"] == v["type"]:
+    #             correct_type += 1
+    #         if correct_data[data_name][k]["regex"]:
+    #             all_re += 1
+    #             if v["regex"] is not None and v["regex"] != "UNKNOWN":
+    #                 correct_re += 1
+    #     return (all_col, correct_type), (all_re, correct_re)
 
     def _check_re(self, values: list[str], regex_str: str) -> bool:
         try:

@@ -17,7 +17,12 @@ def validate_csv_against_schema(schema: Schema, csv_file_path: str, ignored_doma
             schema_dict[domain.name]['domain'] = domain.values
 
     # Open the CSV file and parse it
-    faulty_rows = []
+    faulty_rows = {
+        'required': [],
+        'type': [],
+        'domain': [],
+        'format': []
+    }
     with open(csv_file_path, 'r') as file:
         reader = csv.reader(file)
         headers = next(reader)
@@ -40,7 +45,7 @@ def validate_csv_against_schema(schema: Schema, csv_file_path: str, ignored_doma
                 value = row[feature_index]
 
                 if value == '' and feature_info['required']:
-                    faulty_rows.append(row_index - 1)
+                    faulty_rows['required'].append(row_index - 1)
                     is_faulty_row = True
                     break  # No need to check further if row is already faulty
 
@@ -51,7 +56,7 @@ def validate_csv_against_schema(schema: Schema, csv_file_path: str, ignored_doma
                     elif feature_info['feature'].type == 3:  # FLOAT
                         float(value)
                 except ValueError:
-                    faulty_rows.append(row_index - 1)
+                    faulty_rows['type'].append(row_index - 1)
                     is_faulty_row = True
                     break  # No need to check further if row is already faulty
 
@@ -60,13 +65,13 @@ def validate_csv_against_schema(schema: Schema, csv_file_path: str, ignored_doma
                     continue
 
                 if feature_info['domain'] is not None and value not in feature_info['domain']:
-                    faulty_rows.append(row_index - 1)
+                    faulty_rows['domain'].append(row_index - 1)
                     is_faulty_row = True
                     break  # No need to check further if row is already faulty
 
             if not is_faulty_row and len(row) != len(headers):
                 # If the row does not have the same number of elements as the header, mark it as faulty
-                faulty_rows.append(row_index - 1)
+                faulty_rows['format'].append((row_index - 1))
 
     return faulty_rows
 
