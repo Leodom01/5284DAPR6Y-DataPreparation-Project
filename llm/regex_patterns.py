@@ -5,7 +5,7 @@ import re
 A regex repository for common data formats. Currently supporting the following data types: 
 DATE, TIME, DATETIME, URL, EMAIL, (INT, FLOAT), JSON, BOOLEAN, NETWORK IP ADDRESSES, XML
 """
-class DataFormatChecker:
+class regex_repository:
     def __init__(self):
 
         self.date_patterns = [
@@ -117,5 +117,5 @@ def test_patterns(data_checker):
             print("\n============\n")
 
 if __name__ == "__main__":
-    tmp = DataFormatChecker()
+    tmp = regex_repository()
     test_patterns(tmp)
