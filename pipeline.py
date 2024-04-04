@@ -19,15 +19,15 @@ def run_pipeline(data_df, data_path):
 
 
     anomalies = {
-        'semantic_outliers': [],
-        'syntactic_outliers': None,
-        'schema_anomalies': None
+        'semantic_outliers': {}, # dict[columna_name, list of indices]
+        'syntactic_outliers': {}, # dict[columna_name, list of indices]
+        'schema_anomalies': {} # dict[anomaly_type, list of indices
     }
 
-    print('Find semantic outliers...')
     # semantic outliers
+    print('Find semantic outliers...')
     for column in data_df.columns:
-        anomalies['semantic_outliers'].append(find_semantic_outliers(data_df, column))
+        anomalies['semantic_outliers']['column_name'] = find_semantic_outliers(data_df, column)
 
     # regex
     print('Find syntactic outliers')
