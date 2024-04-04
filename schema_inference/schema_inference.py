@@ -113,9 +113,11 @@ def infer_schema_and_detect_anomalies(data_path, batch_size, aggregation_thresho
     schema_inferer = SchemaInference(data_path, num_lines, column_names, batch_size, aggregation_threshold)
 
     # Infer schema at schema_inferer.aggregated_schema
+    print('Schema Inference: aggregate schema')
     schema_inferer.infer_schema()
 
     # Infer schema at schema_inferer.anomalies
+    print('Schema Inference: detect anomalies')
     schema_inferer.detect_anomalies(data_path, ignored_domains=ignored_domains)
 
     # Factor of Interest

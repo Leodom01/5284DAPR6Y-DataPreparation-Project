@@ -12,6 +12,7 @@ dask==2024.3.0
 deepdiff==6.7.1
 distributed==2024.3.0
 distro==1.9.0
+dotenv==1.0.1
 duckdb==0.10.0
 emcee==3.1.4
 fsspec==2024.2.0
@@ -31,6 +32,7 @@ pynisher==0.6.4
 pyparsing==3.1.2
 pyrfr==0.8.3
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
 pytz==2024.1
 PyYAML==6.0.1
 scikit-learn~=1.4.1.post1
