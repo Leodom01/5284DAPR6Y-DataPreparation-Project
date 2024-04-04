@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 from evaluation.ErrorGenerator import ErrorGenerator
@@ -18,6 +20,8 @@ DATA_DIRS = {
 
 
 def run_pipeline(data_df, data_path):
+    print(f'Run pipeline for {os.path.basename(data_path)}...')
+
     # PARAMS
     API_KEY= ''
     BATCH_SIZE = 0.05
@@ -31,16 +35,19 @@ def run_pipeline(data_df, data_path):
         'schema_anomalies': None
     }
 
+    print('Find semantic outliers...')
     # semantic outliers
     for column in data_df.columns:
         anomalies['semantic_outliers'].append(find_semantic_outliers(data_df, column))
 
     # regex
+    print('Find syntactic outliers')
     sed = Syntax_error_detection(api_key=API_KEY)
     syntax_errors = sed.find_syntax_errors(data_df, "chatgpt")
     anomalies['syntactic_outliers'] = syntax_errors
 
     # Schema anomalies
+    print('Find anomalies using aggregated schema...')
     _, schema_anomalies = infer_schema_and_detect_anomalies(data_path, BATCH_SIZE, AGGREGATION_THRESHOLD, DISTINCT_THRESHOLD)
     anomalies['schema_anomalies'] = schema_anomalies
 
@@ -59,7 +66,7 @@ if __name__ == '__main__':
         # metrics
 
         # TODO: Error generator
-        error_data, error_rows = ErrorGenerator.generate_errors(data_path, dataset_columns=[])
+        # error_data, error_rows = ErrorGenerator.generate_errors(dataset_path=data_path, dataset_columns=[])
         # metrics
 
         anomalies = run_pipeline(data_df, data_path)

@@ -1,6 +1,6 @@
 import csv
 
-from pb_parser import Schema
+from .pb_parser import Schema
 
 
 def validate_csv_against_schema(schema: Schema, csv_file_path: str, ignored_domains=None):

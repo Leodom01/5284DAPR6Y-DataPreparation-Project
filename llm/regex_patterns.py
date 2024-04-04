@@ -72,13 +72,13 @@ class regex_repository:
                                 'time': self.time_patterns, 'integer':self.integer_pattern, 'float': self.float_pattern,
                                 'string': self.string_pattern, 'URL': self.URL_pattern, 'email': self.email_pattern, 'ip': self.ip_pattern}
 
-    def getcategories(self):
+    def get_categories(self):
         return self.data_categories.keys()
 
-    def getdataformats(self):
+    def get_dataformats(self):
         return self.data_categories
 
-    def validatecolumn(self, dataset, column, regex):
+    def validat_column(self, dataset, column, regex):
         pattern = re.compile(regex, re.IGNORECASE)
         invalid_rows = []
         for i, entry in enumerate(dataset[column]):
@@ -103,7 +103,7 @@ def test_patterns(data_checker):
                '2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:0:1:1:1:1:1', '2001:db8::1:1:1:1', '::1']
     }
 
-    for category, patterns in data_checker.getdataformats().items():
+    for category, patterns in data_checker.get_dataformats().items():
         print(f"Testing patterns for category: {category}")
         for pattern in patterns:
             regex_pattern = re.compile(pattern)

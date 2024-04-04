@@ -5,10 +5,10 @@ import pandas as pd
 import tensorflow_data_validation as tfdv
 from tensorflow_metadata.proto.v0 import schema_pb2
 
-from pb_parser import schema_pb2obj, Schema, TYPE_MAPPING
-from csv_parser import validate_csv_against_schema, count_csv_lines_and_column_names
-from helper import shuffle_csv_rows, get_columns_above_threshold
-from schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
+from .pb_parser import schema_pb2obj, Schema, TYPE_MAPPING
+from .csv_parser import validate_csv_against_schema, count_csv_lines_and_column_names
+from .helper import shuffle_csv_rows, get_columns_above_threshold
+from .schema_rules import aggregate, aggregate_presence_min_count, aggregate_presence_min_fraction
 
 
 class SchemaInference:
