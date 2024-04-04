@@ -45,14 +45,15 @@ def schema_pb2obj(proto):
             )
         )
 
-    for domain in schema_dict['string_domain']:
-        domain_dict = proto2dict(domain, domain_fields)
-        domains.append(
-            Domain(
-                name=domain_dict['name'],
-                values=set(domain_dict['value'])
+    if schema_dict['string_domain']:
+        for domain in schema_dict['string_domain']:
+            domain_dict = proto2dict(domain, domain_fields)
+            domains.append(
+                Domain(
+                    name=domain_dict['name'],
+                    values=set(domain_dict['value'])
+                )
             )
-        )
 
     return Schema(features=features, domains=domains)
 

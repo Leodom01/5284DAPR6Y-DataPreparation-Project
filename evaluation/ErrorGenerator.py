@@ -185,12 +185,12 @@ class ErrorGenerator:
 
         df = pd.read_csv(dataset_path)
 
-        print("Columns in the dataset:")
-        print(df.columns)
+        # print("Columns in the dataset:")
+        # print(df.columns)
 
         for idx, column in enumerate(df.columns):
             self.set_na(df[column])
-            print("Set NA to: " + column)
+            # print("Set NA to: " + column)
             match dataset_columns[idx]:
                 case "number":
                     self.break_number(df[column])

@@ -49,7 +49,7 @@ class SchemaInference:
         features = []
         domains= []
 
-        min_size = math.ceil(int(self.num_lines * self.batch_size * self.aggregation_threshold))
+        min_size = math.ceil(self.num_lines * self.batch_size * self.aggregation_threshold)
 
         for column in self.columns:
             features.append(

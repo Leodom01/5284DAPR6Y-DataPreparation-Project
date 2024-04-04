@@ -27,10 +27,10 @@ def run_pipeline(data_df, data_path):
     # semantic outliers
     print('Find semantic outliers...')
     for column in data_df.columns:
-        anomalies['semantic_outliers']['column_name'] = find_semantic_outliers(data_df, column)
+        anomalies['semantic_outliers'][column] = find_semantic_outliers(data_df, column)
 
     # regex
-    print('Find syntactic outliers')
+    print('Find syntactic outliers...')
     sed = Syntax_error_detection(api_key=API_KEY)
     syntax_errors = sed.find_syntax_errors(data_df, "chatgpt")
     anomalies['syntactic_outliers'] = syntax_errors
