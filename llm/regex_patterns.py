@@ -75,8 +75,8 @@ class regex_repository:
     def get_categories(self):
         return self.data_categories.keys()
 
-    def get_dataformats(self):
-        return self.data_categories
+    def get_category_regex(self, type):
+        return self.data_categories[type]
 
     def validat_column(self, dataset, column, regex):
         pattern = re.compile(regex, re.IGNORECASE)
