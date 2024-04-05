@@ -129,8 +129,6 @@ def infer_schema_and_detect_anomalies(data_path, batch_size, aggregation_thresho
 # Example usage
 if __name__ == '__main__':
     og_data_path = '../datasets/carprices/car_prices.csv'
-    # og_data_path = '../datasets/salaries/ds_salaries.csv'
-    # og_data_path = '../datasets/test.csv'
 
     BATCH_SIZE = 0.05
     AGGREGATION_THRESHOLD = 0.9

@@ -9,8 +9,19 @@ Our tool depends heavily on the following components:
 ## Requirements
 
 - Python 3.10 or higher
-- api_key for chatgpt 3.5 or locally ran Llama2 or Mixtral 
-# Usage
-```pip install -r requirements.txt```
+- api_key for chatgpt 3.5 or locally ran Llama2 or Mixtral
+
+## Usage
+- Install dependencies
+```shell
+pip install -r requirements.txt
+```
+ - Adjust parameters in `pipeline.py` (BATCH_SIZE = 0.05, AGGREGATION_THRESHOLD, DISTINCT_THRESHOLD) 
+ - Add desired data set (`automl/automl.py` L86)Run the AutoML Assessment
+```shell
+python automl/automl.py
+```
+
+
 
 

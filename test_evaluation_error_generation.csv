@@ -1,4 +1,0 @@
-,id_Completeness,id_Uniqueness,id_ApproxCountDistinct,id_FrequentRatio,price_Completeness,price_Uniqueness,price_ApproxCountDistinct,price_FrequentRatio,size_Completeness,size_Uniqueness,size_ApproxCountDistinct,size_FrequentRatio,size_PeculiarityIndex
-original,1.0,1.0,20,0.05,0.95,1.0,20,0.05,0.95,0.1,7,0.2,0.0
-error_data,0.8,1.0,17,0.05,0.8,1.0,17,0.05,0.75,0.15,8,0.2,0.6931471805599453
-without_anomalies,1.0,1.0,3,0.3333333333333333,1.0,1.0,3,0.3333333333333333,1.0,0.0,1,1.0,
