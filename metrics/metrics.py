@@ -1,90 +1,126 @@
-from __future__ import annotations
-
-import math
+import copy
 
 import numpy as np
 import pandas as pd
-
-TEXTUAL_TYPE_THRESHOLD = 0.01
-
-
-def metric_name(column: str, metric: str) -> str:
-    return column + "_" + metric
+from collections import Counter
+from hyperloglog import HyperLogLog
+from nltk.util import ngrams
 
 
-def calculate_index_of_peculiarity(trigram_counts) -> float:
-    xy_count = trigram_counts.get('xy', 0)
-    yz_count = trigram_counts.get('yz', 0)
-    xyz_count = trigram_counts.get('xyz', 1)  # Add smoothing to handle zero counts
+class DataProfiler:
+    class __DP:
+        def __init__(self):
+            self.analyzer = {
+                "Completeness": lambda x: self.completeness(x),
+                "Uniqueness": lambda x: self.uniqueness(x),
+                "ApproxCountDistinct": lambda x: self.approx_count_distinct(x),
+                "Mean": lambda x: np.mean(x),
+                "Minimum": lambda x: np.min(x),
+                "Maximum": lambda x: np.max(x),
+                "StandardDeviation": lambda x: np.std(x),
+                "Sum": lambda x: np.sum(x),
+                "Count": lambda x: x.shape[0],
+                "FrequentRatio": lambda x: 1.*max(Counter(x).values())/x.shape[0],
+                "PeculiarityIndex": lambda x: self.peculiarity(x),
+            }
 
-    index = 0.5 * (math.log(xy_count) + math.log(yz_count)) - math.log(xyz_count)
-    return index
-
-
-def calculate_column_peculiarity(column: pd.Series, size: int) -> list[float] | None:
-    # Detect if column is textual
-    if not column.dtype in ["object"]:
-        return None
-
-    # Calculate the ratio of distinct values
-    distinct_ratio = len(column.unique()) / size
-    if distinct_ratio >= TEXTUAL_TYPE_THRESHOLD:
-        return None
-
-    # join all the values in the column
-    sentence = " ".join(column)
-    trigrams = [sentence[i:i + 3] for i in range(len(sentence) - 2)]
-    trigram_counts = {trigram: sentence.count(trigram) for trigram in trigrams}
-    indices = [calculate_index_of_peculiarity(trigram_counts) for trigram in trigrams]
-    peculiarity_score: float = math.sqrt(sum(index ** 2 for index in indices) / len(trigrams))
-    return peculiarity_score
+            self.dtype_checking = {
+                "int64": True,
+                "float64": True
+            }
 
 
-def calculate_metrics(dataset: pd.DataFrame) -> pd.DataFrame:
-    metrics: pd.DataFrame = pd.DataFrame(columns=["metric_name", "value"])
-    metric_names: list = []
-    values: list = []
+        def completeness(self, x):
+            return 1. - np.sum(pd.isna(x)) / x.shape[0]
 
-    # size of the dataset
-    size = len(dataset)
-    metric_names.append("size")
-    values.append(size)
+        def uniqueness(self, x):
+            tmp = [i for i in Counter(x).values() if i == 1]
+            return 1. * np.sum(tmp) / x.shape[0]
 
-    # statistics for numeric data types
-    stats: pd.DataFrame = dataset.describe(include="all")
-    for column in dataset.columns:
-        for index, row in stats.iterrows():
-            if index == "count":
-                metric_names.append(metric_name(column, "completeness"))
-                values.append(row[column] / size)
-            if index in ["unique"]:
-                metric_names.append(metric_name(column, "distinct_ratio"))
-                values.append(row[column] / size)
-            if index in ["freq"]:
-                metric_names.append(metric_name(column, "top_ratio"))
-                values.append(row[column] / size)
-            else:
-                metric_names.append(metric_name(column, str(index)))
-                values.append(row[column])
+        def count_distinct(self, x):
+            return 1. * len(Counter(x).keys()) / x.shape[0]
 
-        peculiarity_score: float | None = calculate_column_peculiarity(dataset[column], size)
-        if peculiarity_score is not None:
-            metric_names.append(metric_name(dataset[column], "peculiarity"))
-            values.append(peculiarity_score)
+        def approx_count_distinct(self, x):
+            hll = HyperLogLog(.01)
+            for idx, val in x.items():
+                hll.add(str(val))
+            return len(hll)
 
-    # TODO: include more complex metrics, e.g. distribution of values, feature_correlation, data_drift
+        # TODO: count sketch, using deterministic count for small data
+#        def count_sketch(self, matrix, sketch_size=50):
+#            m, n = matrix.shape[0], 1
+#            res = np.zeros([m, sketch_size])
+#            hashedIndices = np.random.choice(sketch_size, replace=True)
+#            print(hashedIndices)
+#            randSigns = np.random.choice(2, n, replace=True) * 2 - 1 # a n-by-1{+1, -1} vector
+        # #            matrix = matrix * randSigns
+        # #            for i in range(sketch_size):
+        # #                res[:, i] = np.sum(matrix[:, hashedIndices == i], 1)
+        # #            return res
 
-    metrics["metric_name"] = metric_names
-    metrics["value"] = values
-    sorted_metrics = metrics.sort_values(by="metric_name")
+        def peculiarity(self, x):
+            def _peculiarity_index(word, count2grams, count3grams):
+                t = []
+                for xyz in ngrams(str(word), 3):
+                    xy, yz = xyz[:2], xyz[1:]
+                    cxy, cyz = count2grams.get(xy, 0), count2grams.get(yz, 0)
+                    cxyz = count3grams.get(xyz, 0)
+                    t.append(.5* (np.log(cxy) + np.log(cyz) - np.log(cxyz)))
+                return np.sqrt(np.mean(np.array(t)**2))
 
-    return sorted_metrics
+            aggregated_string = " ".join(map(str, x))
+            c2gr = Counter(ngrams(aggregated_string, 2))
+            c3gr = Counter(ngrams(aggregated_string, 3))
+            return x.apply(lambda y: _peculiarity_index(y, c2gr, c3gr)).max()
 
+        # TODO: feature correlation, (mutual information, entropy)
+        # TODO: drift detection, (KL divergence, chi-square test)
+        # TODO: duplicates detection, (LSH, MinHash)
+
+    instance = None
+
+    def __init__(self):
+        if not DataProfiler.instance:
+            DataProfiler.instance = DataProfiler.__DP()
+
+    def __getattr__(self, name):
+        return getattr(self.instance, name)
+
+    def _compute_for_column(self, column, *analyzers):
+        return [self.instance.analyzer[name](column) for name in analyzers]
+
+    # @timeit
+    def compute_for(self, batch, return_labels=False):
+        profile, labels = [], []
+        generic_metrics = ["Completeness", "Uniqueness",
+                           "ApproxCountDistinct", "FrequentRatio"]
+        numeric_metrics = ["Mean", "Minimum", "Maximum",
+                           "StandardDeviation", "Sum"]
+
+        # is_free_string = detect_types(batch)['free_string']
+        for col, dtype in zip(batch.columns, batch.dtypes):
+            # For every column, compute generic metrics,
+            # add additional numeric metrics for numeric columns
+            metrics = copy.deepcopy(generic_metrics)
+            if self.dtype_checking.get(dtype, False):
+                metrics.extend(numeric_metrics)
+            if dtype == 'object': # Dummy check for likely-to-be-strings
+                metrics.append("PeculiarityIndex")
+            # print(col, dtype, metrics)
+            # We assume the data schema to be stable, column order unchanged,
+            # no additional validation for feature order happens, optional
+            column_profile = self._compute_for_column(batch[col], *metrics)
+            profile.extend(column_profile)
+            labels.extend([f'{col}_{m}' for m in metrics])
+        return profile if not return_labels else (profile, labels)
 
 
 # Example usage
-if __name__ == '__main__':
+if __name__ == "__main__":
+    dp = DataProfiler()
     path = '../datasets/carprices/car_prices.csv'
     data = pd.read_csv(path)
-    data_metrics = calculate_metrics(data)
-    print(data_metrics)
+    # take first 5000k
+    data = data[:5000]
+    values, metrics = dp.compute_for(data, return_labels=True)
+    print(pd.DataFrame({"metric_name": metrics, "value": values}))

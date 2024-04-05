@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from evaluation.ErrorGenerator import ErrorGenerator
 from find_outliers.find_outliers import outliers as find_semantic_outliers
 from llm.syntax_error_detection import Syntax_error_detection
-from metrics.metrics_v2 import DataProfiler
+from metrics.metrics import DataProfiler
 from schema_inference.helper import shuffle_csv_rows
 from schema_inference.schema_inference import infer_schema_and_detect_anomalies
 
