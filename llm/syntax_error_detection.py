@@ -1,3 +1,7 @@
+"""
+This module combines the LLM with the regex repository in order to detect syntactic errors.
+"""
+
 import re
 import llm as llm
 from .regex_patterns import regex_repository
@@ -5,9 +9,7 @@ from .regex_patterns import regex_repository
 
 class Syntax_error_detection:
     def __init__(self, api_key: ""):
-        # Initialize Syntax_error_detection class with an API key for llm
         self.llm_handler = llm.LLM(api_key=api_key)
-        # Load regex patterns repository
         self.regex_patterns = regex_repository()
 
     def _find_compatible_regex(self, dataset, column, regex_list):
@@ -70,7 +72,7 @@ class Syntax_error_detection:
             semantic_type = llm_result[column]['type']
             final_patterns = None
 
-            # Check if semantic type exists in regex patterns repository
+            # Check if data type exists in regex patterns repository
             if semantic_type.lower() in self.regex_patterns.get_categories():
                 final_patterns = self.regex_patterns.get_category_regex(semantic_type.lower())
                 # If llm provided additional regex, append it to the patterns
@@ -93,7 +95,5 @@ if __name__ == "__main__":
     import pandas as pd
 
     sed = Syntax_error_detection(api_key='')
-    # Load dataset
     dataset = pd.read_csv("../datasets/carprices/car_prices.csv", sep=",")
-    # Find syntax errors using the Syntax_error_detection class
     error_detected = sed.find_syntax_errors(dataset, "chatgpt")

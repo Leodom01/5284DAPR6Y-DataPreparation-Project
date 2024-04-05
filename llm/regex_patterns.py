@@ -1,10 +1,8 @@
-import re
-
-
 """
 A regex repository for common data formats. Currently supporting the following data types: 
 DATE, TIME, DATETIME, URL, EMAIL, (INT, FLOAT), JSON, BOOLEAN, NETWORK IP ADDRESSES, XML
 """
+import re
 class regex_repository:
     def __init__(self):
 
